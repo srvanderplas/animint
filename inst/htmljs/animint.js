@@ -523,7 +523,7 @@ var animint = function(to_select, json_file){
   	    eActions = function(e){
   		e.attr("x",toXY("x","xmin"))
   		    .attr("width",function(d){
-  		    	return svg.x(d[ aes.xmax ])-svg.x(d[ aes.xmin ]);
+  		    	return Math.abs(svg.x(d[ aes.xmax ])-svg.x(d[ aes.xmin ]));
   		    })
   		    .attr("y", svg.y.range()[1])
   		    .attr("height", svg.y.range()[0]-svg.y.range()[1])
@@ -537,7 +537,7 @@ var animint = function(to_select, json_file){
         elements = elements.data(data);
   	    eActions = function(e){
     	   e.attr("x",function(d){return svg.x(d[aes.xmin]);})
-    	    .attr("width",function(d) {return svg.x(d[aes.xmax])-svg.x(d[aes.xmin]);})
+    	    .attr("width",function(d) {return Math.abs(svg.x(d[aes.xmax])-svg.x(d[aes.xmin]));})
   		    .attr("y",function(d){return svg.y(d[aes.ymax]);})
   		    .attr("height",function(d) {return Math.abs(svg.y(d[aes.ymax])-svg.y(d[aes.ymin]));})
   		    .style("stroke-dasharray",get_dasharray)
