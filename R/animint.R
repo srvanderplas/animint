@@ -41,9 +41,10 @@ gg2list <- function(p){
   # grid 0-1 scale). This allows transformations to be used 
   # out of the box, with no additional d3 coding. 
   theme.pars <- ggplot2:::plot_theme(p)  
+  
+  # if("element_blank"%in%attr(theme.pars$axis.text.x, "class")) 
+  ## code to get blank elements... come back later?
   plist$axis <- list(
-
-#     if("element_blank"%in%attr(theme.pars$axis.text.x, "class")) # code to get blank elements... come back later?
     x = plistextra$panel$ranges[[1]]$x.major_source,
     xlab = plistextra$panel$ranges[[1]]$x.labels,
     xname = plistextra$plot$labels$x,
@@ -188,7 +189,7 @@ layer2list <- function(i, plistextra){
     g$aes$x <- "x"
     g$aes$ymax <- "ymax"
     g$aes$ymin <- "ymin"
-  } else if(g$geom=="tile" | g$geom=="raster" | g$geom=="bar"){
+  } else if(g$geom=="tile" | g$geom=="raster" | g$geom=="bar" | g$geom=="bin2d"){
     g$geom <- "rect"
     g$aes$xmin <- "xmin"
     g$aes$xmax <- "xmax"
@@ -197,6 +198,8 @@ layer2list <- function(i, plistextra){
     if(is.null(g$aes$colour) & !is.null(g$aes$fill)){
       g$aes$colour <- g$aes$fill
     }
+    # remove bin labels... square brackets = bad
+    g$data <- g$data[,-grepl("bin", names(g$data))] 
   } else if(g$geom=="boxplot"){
     g$data$outliers <- sapply(g$data$outliers, FUN=paste, collapse=" @ ") 
     g$aes$xmin <- "xmin"
@@ -230,6 +233,14 @@ layer2list <- function(i, plistextra){
   } else if(g$geom=="contour" | g$geom=="density2d"){
     g$geom <- "path"
     g$aes$group <- "piece"
+    # reset g$subord, g$subvars now that group aesthetic exists.
+    subset.vars <- c(some.vars, g$aes[names(g$aes)=="group"])
+    g$subord <- as.list(names(subset.vars))
+    g$subvars <- as.list(subset.vars)
+  } else if(g$geom=="freqpoly"){
+    g$geom <- "path"
+    g$aes$group <- "group"
+    g$aes$y <- "y"
     # reset g$subord, g$subvars now that group aesthetic exists.
     subset.vars <- c(some.vars, g$aes[names(g$aes)=="group"])
     g$subord <- as.list(names(subset.vars))
@@ -301,23 +312,23 @@ layer2list <- function(i, plistextra){
 #' \item violin
 #' \item linerange
 #' \item step
-#' }
-#' Currently unsupported (TODO): 
-#' \itemize{
-#' \item area
-#' \item freqpoly
-#' \item smooth
-#' \item rug
-#' \item quantile
-#' \item boxplot
-#' \item crossbar
-#' \item pointrange
-#' \item dotplot
 #' \item contour
 #' \item density2d
+#' \item area
+#' \item freqpoly
+#' }
+#' Unsupported geoms: 
+#' \itemize{
+#' \item smooth - can be created using geom_line and geom_ribbon
+#' \item rug
+#' \item quantile
+#' \item boxplot - can be created using geom_rect and geom_segment
+#' \item crossbar - can be created using geom_rect and geom_segment
+#' \item pointrange - can be created using geom_linerange and geom_point
+#' \item dotplot
 #' \item bin2d
 #' \item hex
-#' \item map
+#' \item map - can be created using geom_polygon or geom_path
 #'}
 #' Supported scales: 
 #' \itemize{
