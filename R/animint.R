@@ -122,7 +122,9 @@ layer2list <- function(i, plistextra){
             
             ##g$data[[as.character(x)]] <- plistextra$data[[i]][[aes.name]]
           }
+          g$data[[aes.name]] <- plistextra$data[[i]][,aes.name]
           as.character(x)
+#           aes.name
         }else if(is.language(x)){
           newcol <- as.character(as.expression(x))
           g$data[[newcol]] <- plistextra$data[[i]][[aes.name]]
