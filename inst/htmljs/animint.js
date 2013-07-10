@@ -631,7 +631,7 @@ var animint = function(to_select, json_file){
   		    .style("stroke-dasharray",get_dasharray)
   		    .style("stroke-width",get_size)
   		    .style("stroke",get_colour);
-          })
+          });
       }
       eAppend = "box";
   	}else{
