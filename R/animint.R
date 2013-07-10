@@ -201,7 +201,9 @@ layer2list <- function(i, plistextra){
     # remove bin labels... square brackets = bad
     g$data <- g$data[,-grepl("bin", names(g$data))] 
   } else if(g$geom=="boxplot"){
-    g$data$outliers <- sapply(g$data$outliers, FUN=paste, collapse=" @ ") 
+    # outliers are specified as a list... change so that they are specified as a single string which can then be parsed in JavaScript.
+    # there has got to be a better way to do this!!
+    g$data$outliers <- paste("[", sapply(g$data$outliers, FUN=paste, collapse=" , ") , "]", sep="")
     g$aes$xmin <- "xmin"
     g$aes$xmax <- "xmax"
     g$aes$ymin <- "ymin"
@@ -212,8 +214,7 @@ layer2list <- function(i, plistextra){
     g$aes$outliers <- "outliers"
     g$aes$notchupper <- "notchupper"
     g$aes$notchlower <- "notchlower"
-    # outliers are specified as a list... change so that they are specified as a single string which can then be parsed in JavaScript.
-    # there has got to be a better way to do this!!
+
   } else if(g$geom=="histogram"){
     g$geom <- "rect"
     g$aes$xmin <- "xmin"
