@@ -265,6 +265,13 @@ layer2list <- function(i, plistextra){
     subset.vars <- c(some.vars, g$aes[names(g$aes)=="group"])
     g$subord <- as.list(names(subset.vars))
     g$subvars <- as.list(subset.vars)
+  } else if(g$geom=="quantile"){
+    g$geom <- "path"
+    g$aes$group <- "group"
+    # reset g$subord, g$subvars now that group aesthetic exists.
+    subset.vars <- c(some.vars, g$aes[names(g$aes)=="group"])
+    g$subord <- as.list(names(subset.vars))
+    g$subvars <- as.list(subset.vars)
   }
   
   
