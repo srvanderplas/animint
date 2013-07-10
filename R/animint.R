@@ -27,13 +27,17 @@ gg2list <- function(p){
   }
   for(i in seq_along(plistextra$plot$layers)){
     g <- layer2list(i, plistextra)
+
+    g$untransformed <- g$data
+    g$data <- ggplot2:::coord_transform(plistextra$plot$coord, g$data,
+                                        plistextra$panel$ranges[[1]])
     plist$geoms[[i]] <- g
-    for(ax.name in names(plist$ranges)){
-      plist$ranges[[ax.name]] <-
-        c(plist$ranges[[ax.name]], g$ranges[ax.name,])
-    }
+#     for(ax.name in names(plist$ranges)){
+#       plist$ranges[[ax.name]] <-
+#         c(plist$ranges[[ax.name]], g$ranges[ax.name,])
+#     }
   }
-  plist$ranges <- lapply(plist$ranges, range, na.rm=TRUE)
+#   plist$ranges <- lapply(plist$ranges, range, na.rm=TRUE)
   
   # Export axis specification as a combination of breaks and
   # labels, on the relevant axis scale (i.e. so that it can
@@ -45,10 +49,12 @@ gg2list <- function(p){
   # if("element_blank"%in%attr(theme.pars$axis.text.x, "class")) 
   ## code to get blank elements... come back later?
   plist$axis <- list(
-    x = plistextra$panel$ranges[[1]]$x.major_source,
+#     x = plistextra$panel$ranges[[1]]$x.major_source,
+    x = plistextra$panel$ranges[[1]]$x.major,
     xlab = plistextra$panel$ranges[[1]]$x.labels,
     xname = plistextra$plot$labels$x,
-    y = plistextra$panel$ranges[[1]]$y.major_source,
+#     y = plistextra$panel$ranges[[1]]$y.major_source,
+    y = plistextra$panel$ranges[[1]]$y.major,
     ylab = plistextra$panel$ranges[[1]]$y.labels,
     yname = plistextra$plot$labels$y
   )
@@ -72,7 +78,7 @@ layer2list <- function(i, plistextra){
   ##           data=plistextra$data[[i]])
   g$aes <- list()
 
-  calc.geoms <- c("abline", "area", "bar", "bin2d", "boxplot", "contour", "crossbar", "density", "density2d", "dotplot", "errorbar", "freqpoly", "hex", "histogram", "map", "quantile", "smooth", "step", "tile", "raster", "violin", "polygon")
+  calc.geoms <- c("abline", "area", "bar", "bin2d", "boxplot", "contour", "crossbar", "density", "density2d", "dotplot", "errorbar", "freqpoly", "hex", "histogram", "map", "quantile", "smooth", "step", "tile", "raster", "violin", "polygon", "linerange")
   
   # use un-named parameters so that they will not be exported
   # to JSON as a named object, since that causes problems with
@@ -189,7 +195,7 @@ layer2list <- function(i, plistextra){
     g$aes$x <- "x"
     g$aes$ymax <- "ymax"
     g$aes$ymin <- "ymin"
-  } else if(g$geom=="tile" | g$geom=="raster" | g$geom=="bar" | g$geom=="bin2d"){
+  } else if(g$geom=="tile" | g$geom=="raster"){
     g$geom <- "rect"
     g$aes$xmin <- "xmin"
     g$aes$xmax <- "xmax"
@@ -198,10 +204,11 @@ layer2list <- function(i, plistextra){
     if(is.null(g$aes$colour) & !is.null(g$aes$fill)){
       g$aes$colour <- g$aes$fill
     }
-    # remove bin labels... square brackets = bad
-    g$data <- g$data[,-grepl("bin", names(g$data))] 
+  } else if(g$geom=="bin2d"){
+    stop("bin2d is not supported in animint. Try using geom_tile() and binning the data yourself.")
   } else if(g$geom=="boxplot"){
-    # outliers are specified as a list... change so that they are specified as a single string which can then be parsed in JavaScript.
+    # outliers are specified as a list... 
+    # change so that they are specified as a single string which can then be parsed in JavaScript.
     # there has got to be a better way to do this!!
     g$data$outliers <- paste("[", sapply(g$data$outliers, FUN=paste, collapse=" , ") , "]", sep="")
     g$aes$xmin <- "xmin"
@@ -214,14 +221,16 @@ layer2list <- function(i, plistextra){
     g$aes$outliers <- "outliers"
     g$aes$notchupper <- "notchupper"
     g$aes$notchlower <- "notchlower"
-
-  } else if(g$geom=="histogram"){
+    stop("boxplots are not supported in animint")
+  } else if(g$geom=="histogram" | g$geom=="bar"){
     g$geom <- "rect"
     g$aes$xmin <- "xmin"
     g$aes$xmax <- "xmax"
     g$aes$ymin <- "ymin"
     g$aes$ymax <- "ymax"
-  } else if(g$geom=="violin"){
+  } else if(g$geom=="linerange"){
+    g$data <- unique(g$data)
+  }else if(g$geom=="violin"){
     g$geom <- "polygon"
     g$data <- transform(g$data, xminv = x-violinwidth*(x-xmin),xmaxv = x+violinwidth*(xmax-x))
     newdata <- ddply(g$data, .(group), function(df) rbind(arrange(transform(df, x=xminv), y), arrange(transform(df, x=xmaxv), -y)))
@@ -255,32 +264,35 @@ layer2list <- function(i, plistextra){
   # Strictly speaking, this isn't "layer" information as much 
   # as it is plot information, but d3 specification is easier 
   # using layers. 
-  g$ranges <- matrix(c(plistextra$panel$ranges[[1]]$x.range, 
-                       plistextra$panel$ranges[[1]]$y.range),
+#   g$ranges <- matrix(c(plistextra$panel$ranges[[1]]$x.range, 
+#                        plistextra$panel$ranges[[1]]$y.range),
+#                      2,2,dimnames=list(axis=c("x","y"),limit=c("min","max")), byrow=TRUE)
+  g$ranges <- matrix(c(c(0,1), 
+                       c(0,1)),
                      2,2,dimnames=list(axis=c("x","y"),limit=c("min","max")), byrow=TRUE)
   
   # Old way of getting ranges... still needed for handling Inf values.
-    range.map <- c(xintercept="x",x="x",xend="x",xmin="x",xmax="x",
-                   yintercept="y",y="y",yend="y",ymin="y",ymax="y")
-    for(aesname in names(range.map)){
-      if(aesname %in% names(g$aes)){
-        var.name <- g$aes[[aesname]]
-        ax.name <- range.map[[aesname]]
-        v <- g$data[[var.name]]
-        if(is.factor(v)){
-          g$data[[var.name]] <- ggdata[[aesname]]
-        }else{
-          r <- range(v, na.rm=TRUE, finite=TRUE)
-          ## TODO: handle Inf like in ggplot2.
-          size <- r[2]-r[1]
-          rowidx <- which(dimnames(g$ranges)$axis%in%ax.name)
-          if(length(rowidx)>0){
-            g$data[[var.name]][g$data[[var.name]]==Inf] <- g$ranges[rowidx,2]
-            g$data[[var.name]][g$data[[var.name]]==-Inf] <- g$ranges[rowidx,1]
-          }
-        }          
-      }
-    }
+#     range.map <- c(xintercept="x",x="x",xend="x",xmin="x",xmax="x",
+#                    yintercept="y",y="y",yend="y",ymin="y",ymax="y")
+#     for(aesname in names(range.map)){
+#       if(aesname %in% names(g$aes)){
+#         var.name <- g$aes[[aesname]]
+#         ax.name <- range.map[[aesname]]
+#         v <- g$data[[var.name]]
+#         if(is.factor(v)){
+#           g$data[[var.name]] <- ggdata[[aesname]]
+#         }else{
+#           r <- range(v, na.rm=TRUE, finite=TRUE)
+#           ## TODO: handle Inf like in ggplot2.
+#           size <- r[2]-r[1]
+#           rowidx <- which(dimnames(g$ranges)$axis%in%ax.name)
+#           if(length(rowidx)>0){
+#             g$data[[var.name]][g$data[[var.name]]==Inf] <- g$ranges[rowidx,2]
+#             g$data[[var.name]][g$data[[var.name]]==-Inf] <- g$ranges[rowidx,1]
+#           }
+#         }          
+#       }
+#     }
   g
 }
 
@@ -327,7 +339,7 @@ layer2list <- function(i, plistextra){
 #' \item crossbar - can be created using geom_rect and geom_segment
 #' \item pointrange - can be created using geom_linerange and geom_point
 #' \item dotplot
-#' \item bin2d
+#' \item bin2d - bin using ddply() and then use geom_tile()
 #' \item hex
 #' \item map - can be created using geom_polygon or geom_path
 #'}

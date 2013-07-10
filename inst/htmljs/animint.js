@@ -94,10 +94,12 @@ var animint = function(to_select, json_file){
     plotdim.title.y = plotdim.margin.top/2;
     
   	svg.x = d3.scale.linear()
-  	    .domain(p_info.ranges.x)
+  	    //.domain(p_info.ranges.x)
+        .domain([0,1])
   	    .range([plotdim.xstart, plotdim.xend]);
   	svg.y = d3.scale.linear()
-  	    .domain(p_info.ranges.y)
+  	    //.domain(p_info.ranges.y)
+        .domain([0,1])
   	    .range([plotdim.yend, plotdim.ystart]);
         
     function isArray(o) {  return Object.prototype.toString.call(o) === '[object Array]'; }
