@@ -349,15 +349,15 @@ layer2list <- function(i, plistextra){
 #' }
 #' Unsupported geoms: 
 #' \itemize{
-#' \item smooth - can be created using geom_line and geom_ribbon
 #' \item rug
-#' \item quantile
+#' \item dotplot
+#' \item hex
+#' \item quantile - should *theoretically* work but in practice does not work
+#' \item smooth - can be created using geom_line and geom_ribbon
 #' \item boxplot - can be created using geom_rect and geom_segment
 #' \item crossbar - can be created using geom_rect and geom_segment
 #' \item pointrange - can be created using geom_linerange and geom_point
-#' \item dotplot
 #' \item bin2d - bin using ddply() and then use geom_tile()
-#' \item hex
 #' \item map - can be created using geom_polygon or geom_path
 #'}
 #' Supported scales: 
