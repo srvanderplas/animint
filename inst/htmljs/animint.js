@@ -439,8 +439,8 @@ var animint = function(to_select, json_file){
   	    // baseline-shift... use paths?
   	    // http://commons.oreilly.com/wiki/index.php/SVG_Essentials/Text
   	    eActions = function(e){
-  		e.attr("x",toXY("x","x"))
-  		    .attr("y",toXY("y","y"))
+  		e.attr("x",function(d){ return svg.x(d[ aes.x ]);})
+  		    .attr("y",function(d){ return svg.y(d[ aes.y ]);})
   		    .text(function(d){ return d[aes.label]; })
   		    .style("text-anchor",text_anchor)
   		;
@@ -449,8 +449,8 @@ var animint = function(to_select, json_file){
   	}else if(g_info.geom == "point"){
   	    elements = elements.data(data);
   	    eActions = function(e){
-  		   e.attr("cx",toXY("x","x"))
-  		    .attr("cy",toXY("y","y"))
+  		   e.attr("cx",function(d){ return svg.x(d[ aes.x ]);})
+  		    .attr("cy",function(d){ return svg.y(d[ aes.y ]);})
   		    .attr("r",get_size)
           .style("fill",get_fill)
           .style("stroke",get_colour)
@@ -460,8 +460,8 @@ var animint = function(to_select, json_file){
   	}else if(g_info.geom == "jitter"){
         elements = elements.data(data);
   	    eActions = function(e){
-  		   e.attr("cx",toXY("x","x"))
-  		    .attr("cy",toXY("y","y"))
+  		   e.attr("cx",function(d){ return svg.x(d[ aes.x ]);})
+  		    .attr("cy",function(d){ return svg.y(d[ aes.y ]);})
   		    .attr("r",get_size)
           .style("fill",get_fill)
           .style("stroke",get_colour)
@@ -523,7 +523,7 @@ var animint = function(to_select, json_file){
   	}else if(g_info.geom == "tallrect"){
         elements = elements.data(data);
   	    eActions = function(e){
-  		e.attr("x",toXY("x","xmin"))
+  		e.attr("x",function(d){return svg.x(d[aes.xmin]);})
   		    .attr("width",function(d){
   		    	return Math.abs(svg.x(d[ aes.xmax ])-svg.x(d[ aes.xmin ]));
   		    })
@@ -578,8 +578,8 @@ var animint = function(to_select, json_file){
     }else if(g_info.geom == "vline"){
       elements = elements.data(data);
       eActions = function(e){
-		   e.attr("x1",toXY("x","xintercept"))
-		    .attr("x2",toXY("x","xintercept"))
+		   e.attr("x1",function(d){return svg.x(d[aes.xintercept]);})
+		    .attr("x2",function(d){return svg.x(d[aes.xintercept]);})
 		    .attr("y1",svg.y.range()[0])
 		    .attr("y2",svg.y.range()[1])
 		    .style("stroke-dasharray",get_dasharray)
@@ -592,8 +592,8 @@ var animint = function(to_select, json_file){
       //pretty much a copy of geom_vline with obvious modifications
         elements = elements.data(data);
   	    eActions = function(e){
-  	  	 e.attr("y1",toXY("y","yintercept"))
-  		    .attr("y2",toXY("y","yintercept"))
+  	  	 e.attr("y1",function(d){return svg.y(d[aes.yintercept]);})
+  		    .attr("y2",function(d){return svg.y(d[aes.yintercept]);})
   		    .attr("x1",svg.x.range()[0]+plotdim.margin.left)
   		    .attr("x2",svg.x.range()[1]-plotdim.margin.right)
   		    .style("stroke-dasharray",get_dasharray)
