@@ -28,6 +28,13 @@ gg2list <- function(p){
   for(i in seq_along(plistextra$plot$layers)){
     g <- layer2list(i, plistextra)
 
+    ## Idea: use the ggplot2:::coord_transform(coords, data, scales)
+    ## function to handle cases like coord_flip. scales is a list of
+    ## 12, coords is a list(limits=list(x=NULL,y=NULL)) with class
+    ## e.g. c("cartesian","coord"). The result is a transformed data
+    ## frame where all the data values are between 0 and 1. 
+    
+    # TODO: constant values passed into aes are not transformed.
     g$untransformed <- g$data
     g$data <- ggplot2:::coord_transform(plistextra$plot$coord, g$data,
                                         plistextra$panel$ranges[[1]])
@@ -40,10 +47,8 @@ gg2list <- function(p){
 #   plist$ranges <- lapply(plist$ranges, range, na.rm=TRUE)
   
   # Export axis specification as a combination of breaks and
-  # labels, on the relevant axis scale (i.e. so that it can
-  # be passed into d3 on the x axis scale instead of on the 
-  # grid 0-1 scale). This allows transformations to be used 
-  # out of the box, with no additional d3 coding. 
+  # labels, on an 0-1 axis scale. This allows transformations 
+  # to be used out of the box, with no additional d3 coding. 
   theme.pars <- ggplot2:::plot_theme(p)  
   
   # if("element_blank"%in%attr(theme.pars$axis.text.x, "class")) 
@@ -90,6 +95,9 @@ layer2list <- function(i, plistextra){
 
   ggdata <- plistextra$data[[i]]
   usegg <- c("colour","fill","linetype","alpha","size","label")
+  
+  # TODO: Fix non-calculated geoms so that relevant parameters are transformed AND 
+  #       clickSelects/showSelected still works.
   if(!g$geom%in%calc.geoms){
     # Populate list of aesthetics
     for(aes.name in names(plistextra$plot$layers[[i]]$mapping)){
