@@ -645,7 +645,7 @@ var animint = function(to_select, json_file){
   	    	return selectedOpacity(d, g_info.aes.clickSelects, 
   				            get_alpha(d), get_alpha(d)-1/2);
   	    }
-  	    elements.style("opacity",notOver);
+  	    elements.style("opacity",notOver)
   		.on("mouseover",function(d){
   		    d3.select(this).style("opacity",function(d){
             return selectedOpacity(d, g_info.aes.clickSelects,
