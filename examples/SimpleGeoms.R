@@ -138,6 +138,7 @@ g14 <- ggplot() +  xlim(0.5, 6) + scale_y_log10() +
                stat="density2d", alpha=.5) +
   geom_point(data=geyser, aes(x = duration, y = waiting)) + 
   scale_fill_continuous(low="#56B1F7", high="#132B43", trans="log") +
+  scale_colour_continuous(low="#56B1F7", high="#132B43", trans="log") +
   xlim(0.5, 6) + ylim(40, 110) +
   ggtitle("geom_density2d polygon")
 g14
@@ -195,10 +196,10 @@ g19 <- ggplot() +
   geom_area(data=diamonds, aes(x=clarity, y=..count.., group=cut, colour=cut, fill=cut), stat="density") +
   ggtitle("geom_area")
 g19
-gg2animint(list(g1=g1, g2=g2, g3=g3, g4=g4, g5=g5, g6=g6, g7=g7, g8=g8, 
-                g9=g9, g10=g10, g11=g11, g12=g12, g13=g13, g14=g14, g15=g15, 
-#                 g16 = g16, 
-                g17=g17, g18=g18, g19=g19))
+# gg2animint(list(g1=g1, g2=g2, g3=g3, g4=g4, g5=g5, g6=g6, g7=g7, g8=g8, 
+#                 g9=g9, g10=g10, g11=g11, g12=g12, g13=g13, g14=g14, g15=g15, 
+# #                 g16 = g16, 
+#                 g17=g17, g18=g18, g19=g19))
 
 g20 <- ggplot() + 
   geom_freqpoly(data=diamonds, aes(x=clarity, group=cut, colour=cut)) +
@@ -208,19 +209,3 @@ gg2animint(list(g1=g1, g2=g2, g3=g3, g4=g4, g5=g5, g6=g6, g7=g7, g8=g8,
                 g9=g9, g10=g10, g11=g11, g12=g12, g13=g13, g14=g14, g15=g15, 
                 #                 g16 = g16, 
                 g17=g17, g18=g18, g19=g19, g20=g20))
-
-g21 <- ggplot() + geom_bin2d(data=diamonds, aes(x = carat, y = price, fill=..count..))# + xlim(4,10) + ylim(4,10)
-g21 <- ggplot() + geom_tile(data=diamonds, aes(x = carat, y = price, fill=..count..), stat="bin2d", binwidth=c(.2, 20)) 
-
-g21
-gg2animint(list(g1=g1, g2=g2, g3=g3, g4=g4, g5=g5, g6=g6, g7=g7, g8=g8, 
-                g9=g9, g10=g10, g11=g11, g12=g12, g13=g13, g14=g14, g15=g15, 
-                #                 g16 = g16, 
-                g17=g17, g18=g18, g19=g19, g20=g20, g21=g21))
-
-tempdata <- plistextra$data[[1]]
-g21 <- ggplot() + 
-  geom_rect(data=tempdata, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax, fill=fill)) + 
-  scale_fill_identity()
-g21
-gg2animint(list(g21=g21))
