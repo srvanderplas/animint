@@ -163,7 +163,7 @@ layer2list <- function(i, plistextra){
       g$data[,color.var] <- toRGB(g$data[,color.var])
     }
   }
-  
+
   if("flip"%in%attr(plistextra$plot$coordinates, "class")){
     oldnames <- names(g$data)
     newnames <- oldnames
@@ -365,7 +365,7 @@ layer2list <- function(i, plistextra){
 #' \item alpha, 
 #' \item fill/colour (brewer, gradient, identity, manual)
 #' \item linetype
-#' \item x and y axis scales, manual break specification, label formatting
+#' \item x and y axis scales, manual break specification, manual labels
 #' \item area 
 #' \item size
 #' }
@@ -447,6 +447,7 @@ gg2animint <- function(plot.list, out.dir=tempfile(), open.browser=interactive()
       g$types[charidx] <- sapply(charidx, function(i) 
         if(sum(!is.rgb(g$data[[i]]))==0){"rgb"
         }else if(sum(!is.linetype(g$data[[i]]))==0){"linetype"
+        }else if(names(g$data[[i]])=="label"){ "label"
         }else "character")
       
       g$data <- csv.name
